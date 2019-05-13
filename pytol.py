@@ -487,7 +487,7 @@ class MainWindow(QtGui.QMainWindow):
                                                       'New File',
                                                       os.getcwd()+"/DB/untitled.db", 
                                                       "Database Files (*.db)")
-        test = str(file_name)[-4:].lower()
+        test = str(file_name)[-3:].lower()
         if test != ".db":
             file_name += ".db"
         if file_name:
