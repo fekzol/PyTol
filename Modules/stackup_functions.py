@@ -55,25 +55,10 @@ class TolStack(object):
         return mean
     
     def stack_variance(self):
-        """variance = 0.0
-        length = len(self.stack)
-        for i in range(length):
-            dist = str(self.stack[i][7])
-            tol = abs(float(self.stack[i][3]) - float(self.stack[i][4]))
-            if dist == "N":
-                sigma = tol / 6
-            elif dist == "T":
-                sigma = tol / (2 * ((6 / (1 + (2.0 / 3) ** 2)) ** (1/2.0)))
-            elif dist == "R":
-                sigma = tol / (2 * 3.0 ** (1/2.0))
-            variance += sigma ** 2 * float(self.stack[i][0]) ** 2
-        variance = variance ** (1/2.0)"""
         variance =  self.tol_end_dim() / int(self.confidence)
         return variance
     
     def tol_end_dim(self):
-        #tol = self.stack_variance() * int(self.confidence)
-        
         tol = 0.0
         length = len(self.stack)
         tr = 2 * ((6 / (1 + (2.0 / 3) ** 2)) ** (1/2.0))
@@ -103,9 +88,7 @@ class TolStack(object):
     def percentage(self):
         try:
             percentage_plus = norm.cdf(float(self.tolp) / self.stack_variance()) * 100
-            #print percentage_plus
             percentage_minus = norm.cdf(float(self.tolm) / self.stack_variance()) * 100
-            #print percentage_minus
             percentage_total = percentage_plus - percentage_minus
             if percentage_total >= 99.999:
                 percentage_total = 100

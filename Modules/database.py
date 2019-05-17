@@ -12,7 +12,7 @@ from sqlite3 import Error
 def create_database(db_file):
     """ create a database connection to a SQLite database """
     try:
-        conn = sqlite3.connect(db_file)#, use_unicode=True, charset="utf8")
+        conn = sqlite3.connect(db_file)
     except Error as e:
         print e
     finally:
@@ -55,7 +55,9 @@ def add_tables(db_file):
                                     author text,
                                     date text,
                                     image_data blob,
-                                    image_file text
+                                    image_file text,
+                                    rem text,
+                                    rev_comment text
                                 );"""
     sql_create_stack_dim_table = """ CREATE TABLE IF NOT EXISTS stack_dims (
                                         stackdim_id integer PRIMARY KEY,
@@ -114,12 +116,19 @@ def get_stacks(db_file):
     db = create_connection(db_file)
     cur = db.cursor()
     with db:
-        cur.execute("SELECT * FROM stacks")
+        cur.execute("""SELECT stack_id,
+                              stack_name,
+                              stack_tolp,
+                              stack_tolm,
+                              confidence,
+                              author,
+                              date,
+                              rev_comment 
+                    FROM stacks""")
         stacks = cur.fetchall()
     #print stacks[0][1]
     global_vars.stackList = create_List(stacks)
     #global_vars.stackList = stacks
-
 
 def get_stack_dimensions(db_file, stack_id):
     db = create_connection(db_file)
@@ -159,14 +168,14 @@ def create_part(db_file, part):
         cur.execute(sql, (part,))
     get_parts(db_file)
     
-def create_stack(db_file, name, tolp, tolm, conf, aut, date):
+def create_stack(db_file, name, tolp, tolm, conf, aut, date, rev_comment):
     db = create_connection(db_file)
     with db:
-        sql = """ INSERT INTO stacks(stack_name, stack_tolp, stack_tolm, confidence, author, date)
-                  VALUES(?,?,?,?,?,?) """
+        sql = """ INSERT INTO stacks(stack_name, stack_tolp, stack_tolm, confidence, author, date, rev_comment)
+                  VALUES(?,?,?,?,?,?,?) """
     
         cur = db.cursor()
-        cur.execute(sql, (name, tolp, tolm, conf, aut, date))
+        cur.execute(sql, (name, tolp, tolm, conf, aut, date, rev_comment))
     get_stacks(db_file)
     
 def create_dim(db_file, dim_descr, dim_nom, tol_plus, tol_minus, comment, part_id):
@@ -219,7 +228,7 @@ def edit_part(db_file, part_no, partID):
     except Error as e:
         print(e)
         
-def edit_stack(db_file, stack_name, tolp, tolm, conf, auth, date, stackID):
+def edit_stack(db_file, stack_name, tolp, tolm, conf, auth, date, rev_comment, stackID):
     try:
         db = create_connection(db_file)
         with db:
@@ -229,10 +238,11 @@ def edit_stack(db_file, stack_name, tolp, tolm, conf, auth, date, stackID):
                           stack_tolm = ?,
                           confidence = ?,
                           author = ?,
-                          date = ?
+                          date = ?,
+                          rev_comment = ?
                       WHERE stack_id = ?"""
             cur = db.cursor()
-            cur.execute(sql, (stack_name, tolp, tolm, conf, auth, date, stackID))
+            cur.execute(sql, (stack_name, tolp, tolm, conf, auth, date, rev_comment, stackID))
         get_stacks(db_file)
     except Error as e:
         print(e)
@@ -258,6 +268,17 @@ def delete_stack_entry(db_file, ID, stack_id):
         cur.execute("SELECT * FROM stack_dims WHERE stack_id = %s" %stack_id)
         global_vars.stackDimList = create_List(cur.fetchall())
         
+def replace_stack_entry(db_file, rowid, dim_id, stack_id):
+    db = create_connection(db_file)
+    with db:
+        sql =""" UPDATE stack_dims
+                  SET dim_id = ?
+                  WHERE stackdim_id = ?"""
+        cur = db.cursor()
+        cur.execute(sql, (dim_id, rowid))
+        cur.execute("SELECT * FROM stack_dims WHERE stack_id = %s" %stack_id)
+        global_vars.stackDimList = create_List(cur.fetchall())
+        
 def delete_stack(db_file, stack_id):
     db = create_connection(db_file)
     with db:
@@ -265,7 +286,15 @@ def delete_stack(db_file, stack_id):
                 WHERE stack_id = ?"""
         cur = db.cursor()
         cur.execute(sql, (stack_id,))
-        cur.execute("SELECT * FROM stacks")
+        cur.execute("""SELECT stack_id,
+                              stack_name,
+                              stack_tolp,
+                              stack_tolm,
+                              confidence,
+                              author,
+                              date,
+                              rev_comment 
+                    FROM stacks""")
         stacks = cur.fetchall()
     global_vars.stackList = create_List(stacks)
     
@@ -298,6 +327,23 @@ def extract_image(db_file, stackid):
         cur = db.cursor()
         cur.execute("SELECT image_data FROM stacks WHERE stack_id = %s" %stackid)
         return cur.fetchone()[0]
+    
+def insert_remark(db_file, stackid, remark):
+    db = create_connection(db_file)
+    with db:
+        sql = """ UPDATE stacks
+                  SET rem = ?
+                  WHERE stack_id = ?"""
+        cur = db.cursor()
+        cur.execute(sql, (remark, stackid))
+
+        
+def get_remark(db_file, stackid):
+    db = create_connection(db_file)
+    with db:
+        cur = db.cursor()
+        cur.execute("SELECT rem FROM stacks WHERE stack_id = %s" %stackid)
+        return cur.fetchone()[0]
         
 def clean(db_file):
      db = create_connection(db_file)   
@@ -310,3 +356,18 @@ def create_List(sql_query):
         d = str(i).replace('(','').replace(')','').replace('u\'','').replace('\'','')
         lis.append(d.split(', '))
     return lis
+
+def create_column(db_file, table, col, t):
+    db = create_connection(db_file) 
+    with db:
+        cur = db.cursor()
+        cur.execute("ALTER TABLE %s ADD COLUMN %s %s" %(table, col, t))
+    db.close()
+    
+def get_columns(db_file, table):
+    db = create_connection(db_file) 
+    with db:
+        cur = db.cursor()
+        cur.execute("SELECT * FROM %s" %table)
+        columns = list(map(lambda x: x[0], cur.description))
+    return  columns

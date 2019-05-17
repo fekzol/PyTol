@@ -11,10 +11,12 @@ from reportlab.lib.units import mm
 from reportlab.platypus import Image, Table, TableStyle
 from reportlab.lib import colors
 from reportlab.lib.utils import ImageReader
-import fitz, io
+import fitz, io, os
+
+cwd = os.getcwd()
 
 class GenReport(object):
-    def __init__(self, name, parameters, worst_case, rss, stacklist, dia1, dia2, pic, auth, date, file_name):
+    def __init__(self, name, parameters, worst_case, rss, stacklist, dia1, dia2, pic, auth, date, remark, file_name):
         self.name = name
         self.parameters = parameters
         self.worst_case = worst_case
@@ -25,6 +27,7 @@ class GenReport(object):
         self.pic = pic
         self.auth = auth
         self.date = date
+        self.remark = remark
         self.file_name = file_name
         
     def report(self, n):
@@ -109,13 +112,21 @@ class GenReport(object):
         image = ImageReader(self.pic)
         c.drawImage(image, 25*mm, 50*mm, width=101.8*mm, height=77*mm, preserveAspectRatio=True, mask='auto')
         
+        c.drawString(20*mm, 45*mm, "Remarks:")
+        remark_lines = []
+        remark_lines.append(self.remark.split("\n"))        
+        textobject = c.beginText(25*mm, 40*mm)
+        for line in remark_lines[0]:
+            textobject.textLine(unicode(line))
+        c.drawText(textobject)
+        
         c.setFont('Helvetica', 10)
         c.drawString(20*mm, 6*mm, "Rev. date:")
         c.drawString(38*mm, 6*mm, self.date)
         c.drawString(60*mm, 6*mm, "Author:")
         c.drawString(73*mm, 6*mm, self.auth)
         
-        imagePath ="../PyTol/Resources/pytol_logo_01.png"
+        imagePath =cwd + "/Resources/pytol_logo_01.png"
         im = Image(imagePath, width=15*mm, height=5*mm)
         im.drawOn(c,180*mm,5*mm)
         c.setFont('Helvetica', 8)
