@@ -1114,7 +1114,7 @@ class MainWindow(QtGui.QMainWindow):
         if global_vars.curPart != "":
             self.btnEditComp.setEnabled(True)
             self.btnNewDim.setEnabled(True)
-        if global_vars.dimList != []:
+        #if global_vars.dimList != []:
             self.btnEditDim.setEnabled(True)
             self.btnNewStack.setEnabled(True)
         if global_vars.stackList != []:
