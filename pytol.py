@@ -6,11 +6,13 @@ Created on Wed Apr 17 20:51:25 2019
 @author: zoli
 """    
 
-import sys, os, pyqtgraph, PIL, io, cStringIO
+import sys, os, pyqtgraph, PIL, io, cStringIO, locale
 import pyqtgraph.exporters as exp
 from PyQt4 import QtGui, QtCore
 from Modules import database, system_vars, stackup_functions, global_vars, genrep
 
+
+locale.setlocale(locale.LC_ALL, '')
 cwd = os.getcwd()
 
 def find_sid(name, namelist):
@@ -463,13 +465,15 @@ class MainWindow(QtGui.QMainWindow):
                                                  "Database Files (*.db)")
         if file_name:
             self.clear_form()
-            #print str(file_name)
             self.setStatusTip("Connected to Database: "+str(file_name))
             global_vars.db_file = str(file_name)
             database.open_db(global_vars.db_file)
             if global_vars.partList != []:
                 self.pop_partlist(global_vars.partList, global_vars.partList[0][1])
+                self.cmbPartList.setCurrentIndex(0)
                 global_vars.curPart =self.cmbPartList.currentText()
+                partid = find_sid(global_vars.curPart, global_vars.partList)
+                database.get_dimensions(global_vars.db_file, partid)                
             if global_vars.dimList != []:
                 self.pop_table(global_vars.dimList)
             if global_vars.stackList != []:
@@ -610,8 +614,12 @@ class MainWindow(QtGui.QMainWindow):
     def pop_partlist(self, parts, cp):
         self.cmbPartList.clear()
         length = len(parts)
+        l=[]
         for i in range(length):
-            self.cmbPartList.addItem(parts[i][1].decode('unicode-escape'))
+            l.append(parts[i][1].decode('unicode-escape'))
+        l =  sorted(l, cmp=locale.strcoll)  
+        for i in range(len(l)):
+            self.cmbPartList.addItem(l[i])
         index = self.cmbPartList.findText(cp, QtCore.Qt.MatchFixedString)
         self.cmbPartList.setCurrentIndex(index)
         
@@ -703,7 +711,7 @@ class MainWindow(QtGui.QMainWindow):
         self.pop_table(global_vars.dimList)
         self.check_status()
         
-    def cellClick(self, row, col):
+    def cellClick(self, row):
         self.rowData = []
         for i in range(6):
             try:
@@ -843,6 +851,15 @@ class MainWindow(QtGui.QMainWindow):
         self.rowDataS = []
         for i in range (9):
             self.rowDataS.append(self.tblStackDimList.item(row, i).text())
+        dim = database.get_stack_dim_part_id(global_vars.db_file, int(self.rowDataS[0]))
+        index = self.cmbPartList.findText(dim[1], QtCore.Qt.MatchFixedString)
+        self.cmbPartList.setCurrentIndex(index)
+        self.part_change(dim[1])
+        rowcount = self.tblDimList.rowCount()
+        for i in range(rowcount):
+            if self.tblDimList.item(i,0).text() == str(dim[0]):
+                self.tblDimList.selectRow(i)
+                self.cellClick(i)
     
     def remove_from_stack(self):
         if self.rowDataS != []:
@@ -858,26 +875,33 @@ class MainWindow(QtGui.QMainWindow):
                                     0,0)
            mb.exec_()
            
-    def replace_from_stack(self):
-        rowid = int(self.rowDataS[0])
-        dimid = int(self.rowData[0])
+    def replace_from_stack(self):     
         curStack = self.cmbStackList.currentText()
         key_current_stack = find_sid(curStack, global_vars.stackList)
-        if self.rowDataS != [] and self.rowData !=[]:
-            database.replace_stack_entry(global_vars.db_file,
-                                         rowid,
-                                         dimid,
-                                         key_current_stack)
-            self.pop_stack_table(global_vars.stackDimList)
-            self.tblStackDimList.clearSelection()
-            self.tblDimList.clearSelection()
-            self.rowDataS = []
-            self.rowData = []    
-        else:
-           mb = QtGui.QMessageBox ("Error","Please select something on both sides!",
+        if len(self.rowDataS) == 0 or len(self.rowData) == 0:
+            mb = QtGui.QMessageBox ("Error","Please select something on both sides!",
                                     QtGui.QMessageBox.Warning,QtGui.QMessageBox.Ok,
                                     0,0)
-           mb.exec_()    
+            mb.exec_()
+        else:
+            if unicode(self.rowDataS[2]) == self.rowData[1]:
+                mb = QtGui.QMessageBox ("Error","Please select different dimensions!",
+                                    QtGui.QMessageBox.Warning,QtGui.QMessageBox.Ok,
+                                    0,0)
+                mb.exec_()
+            else:
+                rowid = int(self.rowDataS[0])
+                dimid = int(self.rowData[0])
+                database.replace_stack_entry(global_vars.db_file,
+                                             rowid,
+                                             dimid,
+                                             key_current_stack)
+                self.pop_stack_table(global_vars.stackDimList)
+                self.tblStackDimList.clearSelection()
+                self.tblDimList.clearSelection()
+                self.rowDataS = []
+                self.rowData = []    
+          
  
     def add_picture(self):
         fname = QtGui.QFileDialog.getOpenFileName(self,

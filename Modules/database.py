@@ -136,6 +136,18 @@ def get_stack_dimensions(db_file, stack_id):
     with db:
         cur.execute("SELECT * FROM stack_dims WHERE stack_id = %s" %stack_id)
         global_vars.stackDimList = create_List(cur.fetchall())
+        
+def get_stack_dim_part_id (db_file, sdimid):
+    db = create_connection(db_file)
+    cur = db.cursor()
+    with db:
+        cur.execute("SELECT dim_id FROM stack_dims WHERE stackdim_id = %s" %sdimid)
+        dim_id = cur.fetchone()[0]
+        cur.execute("SELECT part_id FROM dimensions WHERE dim_id = %s" %dim_id)
+        part_id = cur.fetchone()[0]
+        cur.execute("SELECT part_no FROM parts WHERE part_id = %s" %part_id)
+        part_no = cur.fetchone()[0]
+    return (dim_id, part_no)
 
 def get_dim_data(db_file, dim_id):
     dim_data = []
@@ -149,7 +161,7 @@ def get_dim_data(db_file, dim_id):
 
 def open_db(db_file):
     get_parts(db_file)
-    get_dimensions(db_file, 1)
+    #get_dimensions(db_file, 1)
     get_stacks(db_file)
     get_stack_dimensions(db_file, 1)
      
