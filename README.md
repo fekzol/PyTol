@@ -1,5 +1,5 @@
 ###PyTol
-Tolerance stack-up for engineers
+Tolerance stack-up for mechanical engineers
 V0.01
 
 Dependencies:

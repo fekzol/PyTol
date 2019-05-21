@@ -126,9 +126,7 @@ def get_stacks(db_file):
                               rev_comment 
                     FROM stacks""")
         stacks = cur.fetchall()
-    #print stacks[0][1]
     global_vars.stackList = create_List(stacks)
-    #global_vars.stackList = stacks
 
 def get_stack_dimensions(db_file, stack_id):
     db = create_connection(db_file)
@@ -161,7 +159,6 @@ def get_dim_data(db_file, dim_id):
 
 def open_db(db_file):
     get_parts(db_file)
-    #get_dimensions(db_file, 1)
     get_stacks(db_file)
     get_stack_dimensions(db_file, 1)
      
@@ -236,9 +233,9 @@ def edit_part(db_file, part_no, partID):
                       WHERE part_id = ?"""
             cur = db.cursor()
             cur.execute(sql, (part_no, partID))
-        get_parts(db_file)
     except Error as e:
         print(e)
+    get_parts(db_file)
         
 def edit_stack(db_file, stack_name, tolp, tolm, conf, auth, date, rev_comment, stackID):
     try:
@@ -255,9 +252,9 @@ def edit_stack(db_file, stack_name, tolp, tolm, conf, auth, date, rev_comment, s
                       WHERE stack_id = ?"""
             cur = db.cursor()
             cur.execute(sql, (stack_name, tolp, tolm, conf, auth, date, rev_comment, stackID))
-        get_stacks(db_file)
     except Error as e:
         print(e)
+    get_stacks(db_file)
   
 def move_to_stack(db_file, coef, dist, dim_id, stack_id):
     db = create_connection(db_file)

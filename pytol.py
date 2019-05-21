@@ -140,6 +140,7 @@ class MainWindow(QtGui.QMainWindow):
         self.tblDimList = QtGui.QTableWidget(self)
         self.tblDimList.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
         self.tblDimList.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
+        self.tblDimList.setSelectionMode(QtGui.QTableWidget.SingleSelection)
         self.tblDimList.resize(675, 330)
         self.tblDimList.move(20, 115)
         self.tblDimList.setRowCount(0)
@@ -221,6 +222,7 @@ class MainWindow(QtGui.QMainWindow):
         self.tblStackDimList = QtGui.QTableWidget(self)
         self.tblStackDimList.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
         self.tblStackDimList.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
+        self.tblStackDimList.setSelectionMode(QtGui.QTableWidget.SingleSelection)
         self.tblStackDimList.resize(675, 330)
         self.tblStackDimList.move(805, 115)
         self.tblStackDimList.setRowCount(0)
@@ -468,35 +470,49 @@ class MainWindow(QtGui.QMainWindow):
             self.setStatusTip("Connected to Database: "+str(file_name))
             global_vars.db_file = str(file_name)
             database.open_db(global_vars.db_file)
+            self.btnNewComp.setEnabled(True)
+            self.btnNewStack.setEnabled(True)
             if global_vars.partList != []:
                 self.pop_partlist(global_vars.partList, global_vars.partList[0][1])
                 self.cmbPartList.setCurrentIndex(0)
                 global_vars.curPart =self.cmbPartList.currentText()
                 partid = find_sid(global_vars.curPart, global_vars.partList)
-                database.get_dimensions(global_vars.db_file, partid)                
+                database.get_dimensions(global_vars.db_file, partid)
+                self.btnEditComp.setEnabled(True)  
+                self.btnNewDim.setEnabled(True)
             if global_vars.dimList != []:
                 self.pop_table(global_vars.dimList)
             if global_vars.stackList != []:
-                self.pop_stacklist(global_vars.stackList, global_vars.stackList[0][1])
+                self.pop_stacklist(global_vars.stackList, global_vars.stackList[0][1].decode('unicode-escape'))
                 self.set_picture(global_vars.stackList[0][0])
+                self.btnEditStack.setEnabled(True)
+                self.btnDelStack.setEnabled(True)
+                self.btnaddpic.setEnabled(True)
+                self.btndelpic.setEnabled(True)
+                self.btnremark.setEnabled(True)  
+                self.printAction.setEnabled(True)
+                self.pdfAction.setEnabled(True)
+                self.tocAction.setEnabled(True)
                 #self.pop_stack_table(global_vars.stackDimList)
-            self.check_status()
+            #self.check_status()
         
     def file_new(self):
         file_name = QtGui.QFileDialog.getSaveFileName(self,
                                                       'New File',
                                                       cwd+"/DB/untitled.db", 
                                                       "Database Files (*.db)")
-        test = str(file_name)[-3:].lower()
-        if test != ".db":
-            file_name += ".db"
         if file_name:
+            test = str(file_name)[-3:].lower()
+            if test != ".db":
+                file_name += ".db"
             self.clear_form()
             self.setStatusTip("Connected to Database: "+str(file_name))
             global_vars.db_file = str(file_name)
             database.create_database(global_vars.db_file)
             database.add_tables(global_vars.db_file)
-            self.check_status()
+            self.btnNewComp.setEnabled(True)
+            self.btnNewStack.setEnabled(True)
+            #self.check_status()
             
     def about(self):
         aboutdialog =  aboutDialog()
@@ -504,6 +520,10 @@ class MainWindow(QtGui.QMainWindow):
         
     def pop_table(self, dimensions):
         rowcount = len(dimensions)
+        if rowcount > 0:
+            self.btnEditDim.setEnabled(True)
+        else:
+            self.btnEditDim.setEnabled(False)
         self.tblDimList.setRowCount(rowcount)
         row = 0
         for r in range(rowcount):
@@ -516,6 +536,16 @@ class MainWindow(QtGui.QMainWindow):
             
     def pop_stack_table(self, stack):
         rowcount = len(stack)
+        if rowcount > 0:
+            self.btnEdStackDim.setEnabled(True)
+            #self.btnRemoveFromStack.setEnabled(True)
+            self.printAction.setEnabled(True)
+            self.pdfAction.setEnabled(True)
+        else:
+            self.btnEdStackDim.setEnabled(False)
+            #self.btnRemoveFromStack.setEnabled(False)
+            self.printAction.setEnabled(False)
+            self.pdfAction.setEnabled(False)
         self.tblStackDimList.setRowCount(rowcount)
         row = 0
         stacklist = []
@@ -650,6 +680,7 @@ class MainWindow(QtGui.QMainWindow):
         global_vars.dimList = []
         database.get_dimensions(global_vars.db_file, part_id)
         self.tblDimList.clearSelection()
+        self.btnMoveToStack.setEnabled(False)
         self.rowData = []
         self.pop_table(global_vars.dimList)
         
@@ -662,6 +693,7 @@ class MainWindow(QtGui.QMainWindow):
         index = self.cmbStackList.findText(global_vars.curStack, QtCore.Qt.MatchFixedString)
         self.rowDataS = -1
         self.tblStackDimList.clearSelection()
+        self.btnRemoveFromStack.setEnabled(False)
         if index >= 0:
             self.cmbStackList.setCurrentIndex(index)
             self.tolp.setText(global_vars.stackList[index][2])
@@ -689,7 +721,9 @@ class MainWindow(QtGui.QMainWindow):
             self.pop_partlist(global_vars.partList, global_vars.partList[partid-1][1].decode('unicode-escape'))
             emptyDimlist = []
             self.pop_table(emptyDimlist)
-        self.check_status()
+        self.btnEditComp.setEnabled(True)
+        self.btnNewDim.setEnabled(True)
+        #self.check_status()
         
     def add_new_stack(self):
         addStackDialog = AddStackDialog()
@@ -701,7 +735,13 @@ class MainWindow(QtGui.QMainWindow):
             emptyStacklist = []
             self.pop_stack_table(emptyStacklist)
             self.picturelabel.setPixmap(QtGui.QPixmap(cwd+"/Resources/pytol_logo.png"))
-        self.check_status()
+            self.btnDelStack.setEnabled(True)
+            self.btnEditStack.setEnabled(True)
+            self.btnaddpic.setEnabled(True)
+            self.btndelpic.setEnabled(True)
+            self.btnremark.setEnabled(True)
+            self.tocAction.setEnabled(True)
+        #self.check_status()
         
     def add_new_dim(self):
         global_vars.curPart =self.cmbPartList.currentText()
@@ -709,15 +749,21 @@ class MainWindow(QtGui.QMainWindow):
         addDimDialog.labelcheck.setText("n")
         addDimDialog.exec_()
         self.pop_table(global_vars.dimList)
-        self.check_status()
+        #self.check_status()
         
     def cellClick(self, row):
         self.rowData = []
+        if global_vars.stackList != []:
+            self.btnMoveToStack.setEnabled(True)
+        else:
+            self.btnMoveToStack.setEnabled(False)
         for i in range(6):
             try:
                 self.rowData.append(unicode(self.tblDimList.item(row, i).text()))
             except:
-                self.rowData.append("")            
+                self.rowData.append("")     
+        if self.rowDataS != []:
+            self.btnReplaceFromStack.setEnabled(True)
     
     def edit_dim(self):      
         #global_vars.curPart =self.cmbPartList.currentText()
@@ -752,7 +798,8 @@ class MainWindow(QtGui.QMainWindow):
         self.pop_partlist(global_vars.partList, global_vars.partList[partid-1][1].decode('unicode-escape'))
         
     def edit_stack(self):
-        curStack =self.cmbStackList.currentText()
+        global_vars.curStack =self.cmbStackList.currentText()
+        curStack = global_vars.curStack
         index = self.cmbStackList.findText(curStack, QtCore.Qt.MatchFixedString)
         editStackDialog = AddStackDialog()
         editStackDialog.setWindowTitle("Edit stack parameters")
@@ -781,6 +828,7 @@ class MainWindow(QtGui.QMainWindow):
                 entry_id = int(self.tblStackDimList.item(i, 0).text())
                 database.delete_stack_entry(global_vars.db_file, entry_id, key_current_stack)
             database.delete_stack(global_vars.db_file, key_current_stack)
+            self.rowDataS = []
             if global_vars.stackList !=[]:
                 self.pop_stacklist(global_vars.stackList, global_vars.stackList[0][1])
                 global_vars.curStack =self.cmbStackList.currentText()
@@ -818,6 +866,8 @@ class MainWindow(QtGui.QMainWindow):
             moveToStackDialog.exec_()
             self.pop_stack_table(global_vars.stackDimList)
             self.tblDimList.clearSelection()
+            self.btnMoveToStack.setEnabled(False)
+            self.btnReplaceFromStack.setEnabled(False)
             self.rowData = []
         else:
             mb = QtGui.QMessageBox ("Error","Please select a dimension first!",
@@ -849,6 +899,8 @@ class MainWindow(QtGui.QMainWindow):
         
     def cellClickS(self, row):
         self.rowDataS = []
+        self.btnRemoveFromStack.setEnabled(True)
+        self.btnReplaceFromStack.setEnabled(False)
         for i in range (9):
             self.rowDataS.append(self.tblStackDimList.item(row, i).text())
         dim = database.get_stack_dim_part_id(global_vars.db_file, int(self.rowDataS[0]))
@@ -859,7 +911,7 @@ class MainWindow(QtGui.QMainWindow):
         for i in range(rowcount):
             if self.tblDimList.item(i,0).text() == str(dim[0]):
                 self.tblDimList.selectRow(i)
-                self.cellClick(i)
+                #self.cellClick(i)
     
     def remove_from_stack(self):
         if self.rowDataS != []:
@@ -869,6 +921,7 @@ class MainWindow(QtGui.QMainWindow):
             self.pop_stack_table(global_vars.stackDimList)
             self.tblStackDimList.clearSelection()
             self.rowDataS = []
+            self.btnRemoveFromStack.setEnabled(False)
         else:
            mb = QtGui.QMessageBox ("Error","Please select a stack entry first!",
                                     QtGui.QMessageBox.Warning,QtGui.QMessageBox.Ok,
@@ -899,6 +952,9 @@ class MainWindow(QtGui.QMainWindow):
                 self.pop_stack_table(global_vars.stackDimList)
                 self.tblStackDimList.clearSelection()
                 self.tblDimList.clearSelection()
+                self.btnMoveToStack.setEnabled(False)
+                self.btnRemoveFromStack.setEnabled(False)
+                self.btnReplaceFromStack.setEnabled(False)
                 self.rowDataS = []
                 self.rowData = []    
           
@@ -1098,8 +1154,11 @@ class MainWindow(QtGui.QMainWindow):
         rowcount = len(global_vars.stackList)
         tbl.setRowCount(rowcount)
         for i in range(len(global_vars.stackList)):
+            author =  global_vars.stackList[i][5].decode('unicode-escape')
+            if author.count("&") > 0:
+                author = author.replace("&", ",")
             tbl.setItem(i, 0, QtGui.QTableWidgetItem(global_vars.stackList[i][1].decode('unicode-escape')))
-            tbl.setItem(i, 1, QtGui.QTableWidgetItem(global_vars.stackList[i][5]))
+            tbl.setItem(i, 1, QtGui.QTableWidgetItem(author))
             tbl.setItem(i, 2, QtGui.QTableWidgetItem(global_vars.stackList[i][6]))
             tbl.setItem(i, 3, QtGui.QTableWidgetItem(global_vars.stackList[i][7]))
         button = QtGui.QPushButton("Ok",tocw)
@@ -1108,13 +1167,13 @@ class MainWindow(QtGui.QMainWindow):
         button.clicked.connect(tocw.close)
         tocw.exec_()
         
-    def check_status(self):
+    """def check_status(self):
         if global_vars.db_file != "":
             self.btnNewComp.setEnabled(True)
         if global_vars.curPart != "":
             self.btnEditComp.setEnabled(True)
             self.btnNewDim.setEnabled(True)
-        #if global_vars.dimList != []:
+        if global_vars.dimList != []:
             self.btnEditDim.setEnabled(True)
             self.btnNewStack.setEnabled(True)
         if global_vars.stackList != []:
@@ -1129,7 +1188,7 @@ class MainWindow(QtGui.QMainWindow):
             self.btnremark.setEnabled(True)  
             self.printAction.setEnabled(True)
             self.pdfAction.setEnabled(True)
-            self.tocAction.setEnabled(True)
+            self.tocAction.setEnabled(True)"""
     
     def clear_form(self):
         self.btnNewComp.setEnabled(False)
@@ -1240,7 +1299,6 @@ class AddStackDialog(QtGui.QDialog):
         self.dialogBtn.accepted.connect(self.add_stack)
         self.dialogBtn.rejected.connect(self.reject)
         self.setWindowModality(QtCore.Qt.ApplicationModal)
-
         reference_point = GUI.btnNewStack.mapToGlobal(GUI.btnNewStack.rect().topLeft())
         self.move(reference_point.x(), reference_point.y()+30)
         self.show()
@@ -1542,8 +1600,9 @@ class aboutDialog(QtGui.QDialog):
         self.setWindowModality(QtCore.Qt.ApplicationModal)
         windowGm = self.frameGeometry()
         parentGm = GUI.frameGeometry()
-        x_coord = (parentGm.width() - windowGm.width())/2
-        y_coord = (parentGm.height() - windowGm.height())/2
+        winpos = GUI.pos()
+        x_coord = winpos.x() + (parentGm.width() - windowGm.width())/2
+        y_coord = winpos.y() + (parentGm.height() - windowGm.height())/2
         self.move(x_coord, y_coord)
         self.dialogBtn = QtGui.QDialogButtonBox(self)
         self.dialogBtn.setStandardButtons(QtGui.QDialogButtonBox.Ok)
