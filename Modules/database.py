@@ -237,13 +237,12 @@ def edit_part(db_file, part_no, partID):
         print(e)
     get_parts(db_file)
         
-def edit_stack(db_file, stack_name, tolp, tolm, conf, auth, date, rev_comment, stackID):
+def edit_stack(db_file, tolp, tolm, conf, auth, date, rev_comment, stackID):
     try:
         db = create_connection(db_file)
         with db:
             sql = """ UPDATE stacks
-                      SET stack_name = ?,
-                          stack_tolp = ?,
+                      SET stack_tolp = ?,
                           stack_tolm = ?,
                           confidence = ?,
                           author = ?,
@@ -251,7 +250,20 @@ def edit_stack(db_file, stack_name, tolp, tolm, conf, auth, date, rev_comment, s
                           rev_comment = ?
                       WHERE stack_id = ?"""
             cur = db.cursor()
-            cur.execute(sql, (stack_name, tolp, tolm, conf, auth, date, rev_comment, stackID))
+            cur.execute(sql, (tolp, tolm, conf, auth, date, rev_comment, stackID))
+    except Error as e:
+        print(e)
+    get_stacks(db_file)
+    
+def rename_stack(db_file, stack_name, stackID):
+    try:
+        db = create_connection(db_file)
+        with db:
+            sql = """ UPDATE stacks
+                      SET stack_name = ?
+                      WHERE stack_id = ?"""
+            cur = db.cursor()
+            cur.execute(sql, (stack_name, stackID))
     except Error as e:
         print(e)
     get_stacks(db_file)

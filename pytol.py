@@ -112,19 +112,33 @@ class MainWindow(QtGui.QMainWindow):
         self.btnEditComp.clicked.connect(self.edit_part)
         self.btnEditComp.setEnabled(False)
         
+        self.btnCopyComp = QtGui.QPushButton("Copy comp", self)
+        self.btnCopyComp.resize(90, 27)
+        self.btnCopyComp.move(210, 50)
+        self.btnCopyComp.setIcon(QtGui.QIcon(cwd+"/Resources/brick-go.png"))
+        self.btnCopyComp.clicked.connect(self.copy_part)
+        self.btnCopyComp.setEnabled(False)
+        
         self.btnNewDim = QtGui.QPushButton("New dim", self)
         self.btnNewDim.resize(90, 27)
-        self.btnNewDim.move(510, 50)
+        self.btnNewDim.move(415, 50)
         self.btnNewDim.setIcon(QtGui.QIcon(cwd+"/Resources/table-add.png"))
         self.btnNewDim.clicked.connect(self.add_new_dim)
         self.btnNewDim.setEnabled(False)
         
         self.btnEditDim = QtGui.QPushButton("Edit dim", self)
         self.btnEditDim.resize(90, 27)
-        self.btnEditDim.move(605, 50)
+        self.btnEditDim.move(510, 50)
         self.btnEditDim.setIcon(QtGui.QIcon(cwd+"/Resources/table-edit.png"))
         self.btnEditDim.clicked.connect(self.edit_dim)
         self.btnEditDim.setEnabled(False)
+        
+        self.btnCopyDim = QtGui.QPushButton("Copy dim", self)
+        self.btnCopyDim.resize(90, 27)
+        self.btnCopyDim.move(605, 50)
+        self.btnCopyDim.setIcon(QtGui.QIcon(cwd+"/Resources/table-go.png"))
+        self.btnCopyDim.clicked.connect(self.copy_dim)
+        self.btnCopyDim.setEnabled(False)
         
         self.cmbPartList = QtGui.QComboBox(self)
         self.cmbPartList.resize(675, 27)
@@ -163,23 +177,37 @@ class MainWindow(QtGui.QMainWindow):
         self.btnNewStack.clicked.connect(self.add_new_stack)
         self.btnNewStack.setEnabled(False)
         
+        self.btnRenameStack = QtGui.QPushButton("Ren. stack", self)
+        self.btnRenameStack.resize(90, 27)
+        self.btnRenameStack.move(900, 50)
+        self.btnRenameStack.setIcon(QtGui.QIcon(cwd+"/Resources/database-edit.png"))
+        self.btnRenameStack.clicked.connect(self.ren_stack)
+        self.btnRenameStack.setEnabled(False)
+        
         self.btnEditStack = QtGui.QPushButton("Edit stack", self)
         self.btnEditStack.resize(90, 27)
-        self.btnEditStack.move(900, 50)
-        self.btnEditStack.setIcon(QtGui.QIcon(cwd+"/Resources/database-edit.png"))
+        self.btnEditStack.move(995, 50)
+        self.btnEditStack.setIcon(QtGui.QIcon(cwd+"/Resources/database-gear.png"))
         self.btnEditStack.clicked.connect(self.edit_stack)
         self.btnEditStack.setEnabled(False)
         
         self.btnDelStack = QtGui.QPushButton("Del stack", self)
         self.btnDelStack.resize(90, 27)
-        self.btnDelStack.move(995, 50)
+        self.btnDelStack.move(1090, 50)
         self.btnDelStack.setIcon(QtGui.QIcon(cwd+"/Resources/database-delete.png"))
         self.btnDelStack.clicked.connect(self.del_stack)
         self.btnDelStack.setEnabled(False)
         
+        self.btnCopyStack = QtGui.QPushButton("Copy stack", self)
+        self.btnCopyStack.resize(90, 27)
+        self.btnCopyStack.move(1185, 50)
+        self.btnCopyStack.setIcon(QtGui.QIcon(cwd+"/Resources/database-go.png"))
+        self.btnCopyStack.clicked.connect(self.copy_stack)
+        self.btnCopyStack.setEnabled(False)
+        
         self.btnEdStackDim = QtGui.QPushButton("Edit entry", self)
         self.btnEdStackDim.resize(90, 27)
-        self.btnEdStackDim.move(1090, 50)
+        self.btnEdStackDim.move(1280, 50)
         self.btnEdStackDim.setIcon(QtGui.QIcon(cwd+"/Resources/table-edit.png"))
         self.btnEdStackDim.clicked.connect(self.edit_stack_entry)
         self.btnEdStackDim.setEnabled(False)
@@ -478,7 +506,8 @@ class MainWindow(QtGui.QMainWindow):
                 global_vars.curPart =self.cmbPartList.currentText()
                 partid = find_sid(global_vars.curPart, global_vars.partList)
                 database.get_dimensions(global_vars.db_file, partid)
-                self.btnEditComp.setEnabled(True)  
+                self.btnEditComp.setEnabled(True)
+                self.btnCopyComp.setEnabled(True)
                 self.btnNewDim.setEnabled(True)
             if global_vars.dimList != []:
                 self.pop_table(global_vars.dimList)
@@ -486,6 +515,8 @@ class MainWindow(QtGui.QMainWindow):
                 self.pop_stacklist(global_vars.stackList, global_vars.stackList[0][1].decode('unicode-escape'))
                 self.set_picture(global_vars.stackList[0][0])
                 self.btnEditStack.setEnabled(True)
+                self.btnRenameStack.setEnabled(True)
+                self.btnCopyStack.setEnabled(True)
                 self.btnDelStack.setEnabled(True)
                 self.btnaddpic.setEnabled(True)
                 self.btndelpic.setEnabled(True)
@@ -522,8 +553,10 @@ class MainWindow(QtGui.QMainWindow):
         rowcount = len(dimensions)
         if rowcount > 0:
             self.btnEditDim.setEnabled(True)
+            self.btnCopyDim.setEnabled(True)
         else:
             self.btnEditDim.setEnabled(False)
+            self.btnCopyDim.setEnabled(False)
         self.tblDimList.setRowCount(rowcount)
         row = 0
         for r in range(rowcount):
@@ -722,8 +755,8 @@ class MainWindow(QtGui.QMainWindow):
             emptyDimlist = []
             self.pop_table(emptyDimlist)
         self.btnEditComp.setEnabled(True)
+        self.btnCopyComp.setEnabled(True)
         self.btnNewDim.setEnabled(True)
-        #self.check_status()
         
     def add_new_stack(self):
         addStackDialog = AddStackDialog()
@@ -737,11 +770,12 @@ class MainWindow(QtGui.QMainWindow):
             self.picturelabel.setPixmap(QtGui.QPixmap(cwd+"/Resources/pytol_logo.png"))
             self.btnDelStack.setEnabled(True)
             self.btnEditStack.setEnabled(True)
+            self.btnRenameStack.setEnabled(True)
+            self.btnCopyStack.setEnabled(True)
             self.btnaddpic.setEnabled(True)
             self.btndelpic.setEnabled(True)
             self.btnremark.setEnabled(True)
             self.tocAction.setEnabled(True)
-        #self.check_status()
         
     def add_new_dim(self):
         global_vars.curPart =self.cmbPartList.currentText()
@@ -749,7 +783,26 @@ class MainWindow(QtGui.QMainWindow):
         addDimDialog.labelcheck.setText("n")
         addDimDialog.exec_()
         self.pop_table(global_vars.dimList)
-        #self.check_status()
+        
+    def copy_dim(self):
+        if self.rowData != []:
+            copyDimDialog = AddDimDialog()
+            copyDimDialog.newDimName.setText("Copy of " + self.rowData[1])
+            copyDimDialog.newDimNom.setText(self.rowData[2])
+            copyDimDialog.newDimTolP.setText(self.rowData[3])
+            copyDimDialog.newDimTolM.setText(self.rowData[4])
+            copyDimDialog.newDimComm.setText(self.rowData[5])
+            copyDimDialog.labelcheck.setText("n")
+            copyDimDialog.setWindowTitle("Copy dimension")
+            copyDimDialog.exec_()
+            self.pop_table(global_vars.dimList)
+            self.pop_stack_table(global_vars.stackDimList)
+            self.tblDimList.clearSelection()
+            self.rowData = []
+            self.btnMoveToStack.setEnabled(False)
+        else:
+            mb = QtGui.QMessageBox ("Table error","Please select a dimension to edit!",QtGui.QMessageBox.Warning,QtGui.QMessageBox.Ok,0,0)
+            mb.exec_()
         
     def cellClick(self, row):
         self.rowData = []
@@ -766,7 +819,6 @@ class MainWindow(QtGui.QMainWindow):
             self.btnReplaceFromStack.setEnabled(True)
     
     def edit_dim(self):      
-        #global_vars.curPart =self.cmbPartList.currentText()
         if self.rowData != []:
             editDimDialog = AddDimDialog()
             editDimDialog.newDimName.setText(self.rowData[1])
@@ -782,6 +834,7 @@ class MainWindow(QtGui.QMainWindow):
             self.pop_stack_table(global_vars.stackDimList)
             self.tblDimList.clearSelection()
             self.rowData = []
+            self.btnMoveToStack.setEnabled(False)
         else:
             mb = QtGui.QMessageBox ("Table error","Please select a dimension to edit!",QtGui.QMessageBox.Warning,QtGui.QMessageBox.Ok,0,0)
             mb.exec_()
@@ -797,15 +850,47 @@ class MainWindow(QtGui.QMainWindow):
         editCompDialog.exec_()
         self.pop_partlist(global_vars.partList, global_vars.partList[partid-1][1].decode('unicode-escape'))
         
+    def copy_part(self):
+        curpart =unicode(self.cmbPartList.currentText())
+        copyCompDialog = EditCompDialog()
+        copyCompDialog.newComp.setText("Copy of " + curpart)
+        copyCompDialog.setWindowTitle("Copy component")
+        copyCompDialog.labelNewComp.setText("Component name:")
+        copyCompDialog.checklabel.setText("c")
+        copyCompDialog.exec_()
+        global_vars.curPart = copyCompDialog.newComp.text()
+        partid = find_sid(global_vars.curPart, global_vars.partList)
+        if partid is not None:
+            self.pop_partlist(global_vars.partList, global_vars.partList[partid-1][1].decode('unicode-escape'))
+            self.pop_table(global_vars.dimList)
+            self.tblDimList.clearSelection()
+            self.rowData = []
+        
+    def ren_stack(self):
+        global_vars.curStack =unicode(self.cmbStackList.currentText())
+        stackid = find_sid(global_vars.curStack, global_vars.stackList)
+        renstackdialog = EditCompDialog()
+        renstackdialog.newComp.setText(global_vars.curStack)
+        renstackdialog.setWindowTitle("Rename stack")
+        renstackdialog.labelNewComp.setText("Stack name:")
+        renstackdialog.checklabel.setText("s")
+        reference_point = GUI.btnNewStack.mapToGlobal(GUI.btnNewComp.rect().topLeft())
+        renstackdialog.move(reference_point.x(), reference_point.y()+30)
+        renstackdialog.exec_()
+        self.pop_stacklist(global_vars.stackList, global_vars.stackList[stackid-1][1].decode('unicode-escape'))
+        
     def edit_stack(self):
         global_vars.curStack =self.cmbStackList.currentText()
         curStack = global_vars.curStack
         index = self.cmbStackList.findText(curStack, QtCore.Qt.MatchFixedString)
         editStackDialog = AddStackDialog()
+        editStackDialog.labelNewStack.setText("Stack name:")
         editStackDialog.setWindowTitle("Edit stack parameters")
         editStackDialog.checklabel.setText("e")
         editStackDialog.newStack.setText(curStack)
+        editStackDialog.newStack.setEnabled(False)
         editStackDialog.CloseTolP.setText(self.tolp.text())
+        editStackDialog.CloseTolP.setFocus()
         editStackDialog.CloseTolM.setText(self.tolm.text())
         editStackDialog.Confidence.setText(self.conf.text())
         editStackDialog.Author.setText(self.authname.text())
@@ -814,6 +899,25 @@ class MainWindow(QtGui.QMainWindow):
         editStackDialog.exec_()
         curStack = editStackDialog.newStack.text()
         self.pop_stacklist(global_vars.stackList, curStack)
+        
+    def copy_stack(self):
+        global_vars.curStack =self.cmbStackList.currentText()
+        curStack = global_vars.curStack
+        index = self.cmbStackList.findText(curStack, QtCore.Qt.MatchFixedString)
+        copyStackDialog = AddStackDialog()
+        copyStackDialog.labelNewStack.setText("Stack name:")
+        copyStackDialog.setWindowTitle("Copy stack")
+        copyStackDialog.checklabel.setText("c")
+        copyStackDialog.newStack.setText("Copy of " + curStack)
+        copyStackDialog.CloseTolP.setText(self.tolp.text())
+        copyStackDialog.CloseTolM.setText(self.tolm.text())
+        copyStackDialog.Confidence.setText(self.conf.text())
+        copyStackDialog.Author.setText(self.authname.text())
+        copyStackDialog.RevDate.setText(self.labelrevdate.text())
+        copyStackDialog.Comment.setText(global_vars.stackList[index][7].decode('unicode-escape'))
+        copyStackDialog.exec_()
+        #stackid = find_sid(addStackDialog.newStack.text(), global_vars.stackList)
+        self.pop_stacklist(global_vars.stackList, copyStackDialog.newStack.text())
 
     def del_stack(self):
         del_msg = "Are you sure? There is no way back!"
@@ -845,6 +949,8 @@ class MainWindow(QtGui.QMainWindow):
                 self.btnReplaceFromStack.setEnabled(False)
                 self.btnDelStack.setEnabled(False)
                 self.btnEditStack.setEnabled(False)
+                self.btnRenameStack.setEnabled(False)
+                self.btnCopyStack.setEnabled(False)
                 self.btnEdStackDim.setEnabled(False)
                 self.btnaddpic.setEnabled(False)
                 self.btndelpic.setEnabled(False)
@@ -1166,37 +1272,18 @@ class MainWindow(QtGui.QMainWindow):
         button.move(575, 765)
         button.clicked.connect(tocw.close)
         tocw.exec_()
-        
-    """def check_status(self):
-        if global_vars.db_file != "":
-            self.btnNewComp.setEnabled(True)
-        if global_vars.curPart != "":
-            self.btnEditComp.setEnabled(True)
-            self.btnNewDim.setEnabled(True)
-        if global_vars.dimList != []:
-            self.btnEditDim.setEnabled(True)
-            self.btnNewStack.setEnabled(True)
-        if global_vars.stackList != []:
-            self.btnMoveToStack.setEnabled(True)
-            self.btnRemoveFromStack.setEnabled(True)
-            self.btnReplaceFromStack.setEnabled(True)
-            self.btnDelStack.setEnabled(True)
-            self.btnEditStack.setEnabled(True)
-            self.btnEdStackDim.setEnabled(True)
-            self.btnaddpic.setEnabled(True)
-            self.btndelpic.setEnabled(True)
-            self.btnremark.setEnabled(True)  
-            self.printAction.setEnabled(True)
-            self.pdfAction.setEnabled(True)
-            self.tocAction.setEnabled(True)"""
     
     def clear_form(self):
         self.btnNewComp.setEnabled(False)
         self.btnEditComp.setEnabled(False)
+        self.btnCopyComp.setEnabled(False)
         self.btnNewDim.setEnabled(False)
         self.btnEditDim.setEnabled(False)
+        self.btnCopyDim.setEnabled(False)
         self.btnNewStack.setEnabled(False)
         self.btnEditStack.setEnabled(False)
+        self.btnRenameStack.setEnabled(False)
+        self.btnCopyStack.setEnabled(False)
         self.btnDelStack.setEnabled(False)
         self.btnEdStackDim.setEnabled(False)
         self.btnMoveToStack.setEnabled(False)
@@ -1343,7 +1430,6 @@ class AddStackDialog(QtGui.QDialog):
                 self.close()
             elif check == "e":
                 database.edit_stack(global_vars.db_file,
-                                    stack_name,
                                     tolp,
                                     tolm,
                                     conf,
@@ -1351,7 +1437,38 @@ class AddStackDialog(QtGui.QDialog):
                                     date,
                                     comment,
                                     find_sid(global_vars.curStack, global_vars.stackList))
-                self.close() 
+                self.close()
+            elif check == "c":
+                stackid_old = find_sid(global_vars.curStack, global_vars.stackList)
+                database.create_stack(global_vars.db_file, 
+                                      stack_name, 
+                                      tolp, 
+                                      tolm, 
+                                      conf, 
+                                      aut, 
+                                      date,
+                                      comment)
+                stackid_new = find_sid(stack_name, global_vars.stackList)
+                db_image = database.extract_image(global_vars.db_file, stackid_old)
+                if db_image:
+                    database.insert_image(global_vars.db_file,
+                                          stackid_new,
+                                          db_image,
+                                          "no_filename")
+                rem = database.get_remark(global_vars.db_file, stackid_old)
+                if rem != "":
+                    database.insert_remark(global_vars.db_file,
+                                           stackid_new,
+                                           rem)
+                dimlist = global_vars.stackDimList
+                l = len(dimlist)
+                for i in range(l):      
+                   database.move_to_stack(global_vars.db_file,
+                                           float(dimlist[i][1]),
+                                           str(dimlist[i][2]),
+                                           int(dimlist[i][3]),
+                                           stackid_new)
+                self.close()
 
 class AddDimDialog(QtGui.QDialog):
     dimID = 0
@@ -1450,7 +1567,7 @@ class AddDimDialog(QtGui.QDialog):
                 mb = QtGui.QMessageBox ("Dimensions input",
                                         "Pleasy fill out with right data!",
                                         QtGui.QMessageBox.Warning,QtGui.QMessageBox.Ok,0,0)
-                mb.exec_()  
+                mb.exec_()          
         
 class EditCompDialog(QtGui.QDialog):
     def __init__(self):
@@ -1481,7 +1598,19 @@ class EditCompDialog(QtGui.QDialog):
     def edit_prt(self):
         check = self.checklabel.text()
         name = unicode(self.newComp.text())
-        if name =="":
+        test = 0
+        if check == "s":
+            l = global_vars.stackList
+        else:
+            l = global_vars.partList
+        for i in range(len(l)):
+            if l[i][1].decode('unicode-escape') == name:
+                test += 1
+        if test > 0:
+            mb = QtGui.QMessageBox ("Component number","There is already an entry with the same name!",
+                                        QtGui.QMessageBox.Warning,QtGui.QMessageBox.Ok,0,0)
+            mb.exec_()
+        elif name =="":
             mb = QtGui.QMessageBox ("Component number","Component name cannot be empty",QtGui.QMessageBox.Warning,QtGui.QMessageBox.Ok,0,0)
             mb.exec_()
         else:
@@ -1492,6 +1621,30 @@ class EditCompDialog(QtGui.QDialog):
                 self.close()
             elif check == "n":
                 database.create_part(global_vars.db_file, name)
+                self.close()
+            elif check == "s":
+                database.rename_stack(global_vars.db_file,
+                                      name,
+                                      find_sid(global_vars.curStack, global_vars.stackList))
+                self.close()
+            elif check == "c":
+                rowcount = GUI.tblDimList.rowCount()
+                dimlist = []
+                for i in range(rowcount):
+                    dim = []
+                    for j in range(1,6):
+                        dim.append(GUI.tblDimList.item(i,j).text())
+                    dimlist.append(dim)
+                database.create_part(global_vars.db_file, name)
+                partid = find_sid(name, global_vars.partList)
+                for i in range(len(dimlist)):
+                    database.create_dim(global_vars.db_file, 
+                                        unicode(dimlist[i][0]), 
+                                        float(dimlist[i][1]), 
+                                        float(dimlist[i][2]),
+                                        float(dimlist[i][03]),
+                                        unicode(dimlist[i][4]),
+                                        partid)
                 self.close()
 
 class MoveToStackDialog(QtGui.QDialog):

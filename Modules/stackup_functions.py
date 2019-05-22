@@ -90,11 +90,12 @@ class TolStack(object):
             percentage_plus = norm.cdf(float(self.tolp) / self.stack_variance()) * 100
             percentage_minus = norm.cdf(float(self.tolm) / self.stack_variance()) * 100
             percentage_total = percentage_plus - percentage_minus
-            if percentage_total >= 99.999:
+            desired_tol = float(self.tolp) - float(self.tolm)
+            if percentage_total >= 99.999 or self.tol_end_dim() <= desired_tol:
                 percentage_total = 100
             return percentage_total
         except:
-            print "Oops! Division by zero! check variance!"
+            print "Oops! Division by zero! Check variance!"
             percentage_total = "?"
             return percentage_total
     
