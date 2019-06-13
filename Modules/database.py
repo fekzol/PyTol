@@ -147,6 +147,15 @@ def get_stack_dim_part_id (db_file, sdimid):
         part_no = cur.fetchone()[0]
     return (dim_id, part_no)
 
+def get_stack_dim_ids(db_file):
+    db = create_connection(db_file)
+    cur = db.cursor()
+    with db:
+        cur.execute("SELECT dim_id, stack_id FROM stack_dims")
+        stackdimlist = cur.fetchall()
+    return stackdimlist
+        
+
 def get_dim_data(db_file, dim_id):
     dim_data = []
     db = create_connection(db_file)
@@ -222,7 +231,17 @@ def edit_dim(db_file, dim_descr, dim_nom, tol_plus, tol_minus, comment, dim_id, 
             global_vars.dimList = create_List(cur.fetchall())
            
     except Error as e:
-        print(e)  
+        print(e)
+        
+def delete_dim(db_file, dim_id, part_id):
+    db = create_connection(db_file)
+    with db:
+        sql = """ DELETE FROM dimensions
+                WHERE dim_id = ?"""
+        cur = db.cursor()
+        cur.execute(sql, (dim_id,))
+        cur.execute("SELECT * FROM dimensions WHERE part_id = %s" %part_id)
+    global_vars.dimList = create_List(cur.fetchall())
         
 def edit_part(db_file, part_no, partID):
     try:
@@ -236,6 +255,16 @@ def edit_part(db_file, part_no, partID):
     except Error as e:
         print(e)
     get_parts(db_file)
+    
+def delete_part(db_file, part_id):
+    db = create_connection(db_file)
+    with db:
+        sql = """ DELETE FROM parts
+                WHERE part_id = ?"""
+        cur = db.cursor()
+        cur.execute(sql, (part_id,))
+        cur.execute("SELECT * FROM parts")
+    global_vars.partList = create_List(cur.fetchall())
         
 def edit_stack(db_file, tolp, tolm, conf, auth, date, rev_comment, stackID):
     try:

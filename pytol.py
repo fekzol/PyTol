@@ -100,7 +100,7 @@ class MainWindow(QtGui.QMainWindow):
         
         self.btnNewComp = QtGui.QPushButton("New comp", self)
         self.btnNewComp.resize(90, 27)
-        self.btnNewComp.move(20, 50)
+        self.btnNewComp.move(20, 80)
         self.btnNewComp.setIcon(QtGui.QIcon(cwd+"/Resources/brick-add.png"))
         self.btnNewComp.clicked.connect(self.add_new_comp)
         self.btnNewComp.setEnabled(False)
@@ -119,9 +119,16 @@ class MainWindow(QtGui.QMainWindow):
         self.btnCopyComp.clicked.connect(self.copy_part)
         self.btnCopyComp.setEnabled(False)
         
+        self.btnDelComp = QtGui.QPushButton("Del. comp", self)
+        self.btnDelComp.resize(90, 27)
+        self.btnDelComp.move(20, 50)
+        self.btnDelComp.setIcon(QtGui.QIcon(cwd+"/Resources/brick-delete.png"))
+        self.btnDelComp.clicked.connect(self.del_part)
+        self.btnDelComp.setEnabled(False)
+        
         self.btnNewDim = QtGui.QPushButton("New dim", self)
         self.btnNewDim.resize(90, 27)
-        self.btnNewDim.move(415, 50)
+        self.btnNewDim.move(605, 80)
         self.btnNewDim.setIcon(QtGui.QIcon(cwd+"/Resources/table-add.png"))
         self.btnNewDim.clicked.connect(self.add_new_dim)
         self.btnNewDim.setEnabled(False)
@@ -140,9 +147,16 @@ class MainWindow(QtGui.QMainWindow):
         self.btnCopyDim.clicked.connect(self.copy_dim)
         self.btnCopyDim.setEnabled(False)
         
+        self.btnDelDim = QtGui.QPushButton("Del. dim", self)
+        self.btnDelDim.resize(90, 27)
+        self.btnDelDim.move(415, 50)
+        self.btnDelDim.setIcon(QtGui.QIcon(cwd+"/Resources/table-delete-2.png"))
+        self.btnDelDim.clicked.connect(self.del_dim)
+        self.btnDelDim.setEnabled(False)
+        
         self.cmbPartList = QtGui.QComboBox(self)
-        self.cmbPartList.resize(675, 27)
-        self.cmbPartList.move(20, 80)
+        self.cmbPartList.resize(485, 27)
+        self.cmbPartList.move(115, 80)
         self.cmbPartList.activated[str].connect(self.part_change)
         
         tbl1Headers = ["Dim_ID",
@@ -284,7 +298,8 @@ class MainWindow(QtGui.QMainWindow):
         self.groupBox.move(805,460)
         self.groupBox.setTitle("Results")
         self.labelnom = QtGui.QLabel(self.groupBox)
-        self.labelnom.resize(100, 27)
+        self.labelnom.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
+        self.labelnom.resize(50, 27)
         self.labelnom.move(20,20)
         self.labelnom.setText("Nominal:")
         self.nominal = QtGui.QLineEdit(self.groupBox)
@@ -292,24 +307,27 @@ class MainWindow(QtGui.QMainWindow):
         self.nominal.move(75,20)
         self.nominal.setReadOnly(True)
         self.labeltolp = QtGui.QLabel(self.groupBox)
+        self.labeltolp.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
         self.labeltolp.resize(100, 27)
-        self.labeltolp.move(150,20)
+        self.labeltolp.move(145,20)
         self.labeltolp.setText("Upper deviation:")
         self.tolp = QtGui.QLineEdit(self.groupBox)
         self.tolp.resize(50,27)
         self.tolp.move(250,20)
         self.tolp.setReadOnly(True)
         self.labeltolm = QtGui.QLabel(self.groupBox)
+        self.labeltolm.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
         self.labeltolm.resize(100, 27)
-        self.labeltolm.move(320,20)
+        self.labeltolm.move(315,20)
         self.labeltolm.setText("Lower deviation:")
         self.tolm = QtGui.QLineEdit(self.groupBox)
         self.tolm.resize(50,27)
         self.tolm.move(420,20)
         self.tolm.setReadOnly(True)
         self.labelconf = QtGui.QLabel(self.groupBox)
-        self.labelconf.resize(110, 27)
-        self.labelconf.move(495,20)
+        self.labelconf.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
+        self.labelconf.resize(115, 27)
+        self.labelconf.move(490,20)
         self.labelconf.setText("Confidence interval:")
         self.conf = QtGui.QLineEdit(self.groupBox)
         self.conf.resize(50,27)
@@ -335,9 +353,10 @@ class MainWindow(QtGui.QMainWindow):
         self.groupBox1.move(20,50)
         self.groupBox1.setTitle("Worst Case")
         self.labelmaxdim = QtGui.QLabel(self.groupBox1)
-        self.labelmaxdim.resize(120, 27)
-        self.labelmaxdim.move(10,20)
+        self.labelmaxdim.resize(125, 27)
+        self.labelmaxdim.move(5,20)
         self.labelmaxdim.setText("Maximum dimension:")
+        self.labelmaxdim.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
         self.maxdim = QtGui.QLineEdit(self.groupBox1)
         self.maxdim.resize(50, 27)
         self.maxdim.move(135,20)
@@ -346,6 +365,7 @@ class MainWindow(QtGui.QMainWindow):
         self.labelmindim.resize(120, 27)
         self.labelmindim.move(10,50)
         self.labelmindim.setText("Minimum dimension:")
+        self.labelmindim.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
         self.mindim = QtGui.QLineEdit(self.groupBox1)
         self.mindim.resize(50, 27)
         self.mindim.move(135,50)
@@ -365,9 +385,10 @@ class MainWindow(QtGui.QMainWindow):
         self.groupBox2.move(230,50)
         self.groupBox2.setTitle("RSS")
         self.labelmaxdimrss = QtGui.QLabel(self.groupBox2)
-        self.labelmaxdimrss.resize(120, 27)
-        self.labelmaxdimrss.move(10,20)
+        self.labelmaxdimrss.resize(125, 27)
+        self.labelmaxdimrss.move(5,20)
         self.labelmaxdimrss.setText("Maximum dimension:")
+        self.labelmaxdimrss.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
         self.maxdimrss = QtGui.QLineEdit(self.groupBox2)
         self.maxdimrss.resize(50, 27)
         self.maxdimrss.move(135,20)
@@ -376,6 +397,7 @@ class MainWindow(QtGui.QMainWindow):
         self.labelmindimrss.resize(120, 27)
         self.labelmindimrss.move(10,50)
         self.labelmindimrss.setText("Minimum dimension:")
+        self.labelmindimrss.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
         self.mindimrss = QtGui.QLineEdit(self.groupBox2)
         self.mindimrss.resize(50, 27)
         self.mindimrss.move(135,50)
@@ -508,6 +530,7 @@ class MainWindow(QtGui.QMainWindow):
                 database.get_dimensions(global_vars.db_file, partid)
                 self.btnEditComp.setEnabled(True)
                 self.btnCopyComp.setEnabled(True)
+                self.btnDelComp.setEnabled(True)
                 self.btnNewDim.setEnabled(True)
             if global_vars.dimList != []:
                 self.pop_table(global_vars.dimList)
@@ -554,9 +577,11 @@ class MainWindow(QtGui.QMainWindow):
         if rowcount > 0:
             self.btnEditDim.setEnabled(True)
             self.btnCopyDim.setEnabled(True)
+            self.btnDelDim.setEnabled(True)
         else:
             self.btnEditDim.setEnabled(False)
             self.btnCopyDim.setEnabled(False)
+            self.btnDelDim.setEnabled(False)
         self.tblDimList.setRowCount(rowcount)
         row = 0
         for r in range(rowcount):
@@ -751,11 +776,12 @@ class MainWindow(QtGui.QMainWindow):
         global_vars.curPart = addCompDialog.newComp.text()
         partid = find_sid(global_vars.curPart, global_vars.partList)
         if partid is not None:
-            self.pop_partlist(global_vars.partList, global_vars.partList[partid-1][1].decode('unicode-escape'))
+            self.pop_partlist(global_vars.partList, global_vars.curPart)#.decode('unicode-escape'))
             emptyDimlist = []
             self.pop_table(emptyDimlist)
         self.btnEditComp.setEnabled(True)
         self.btnCopyComp.setEnabled(True)
+        self.btnDelComp.setEnabled(True)
         self.btnNewDim.setEnabled(True)
         
     def add_new_stack(self):
@@ -765,8 +791,8 @@ class MainWindow(QtGui.QMainWindow):
         key_new_stack = find_sid(addStackDialog.newStack.text(), global_vars.stackList)
         if key_new_stack is not None:
             self.pop_stacklist(global_vars.stackList, addStackDialog.newStack.text())
-            emptyStacklist = []
-            self.pop_stack_table(emptyStacklist)
+            global_vars.stackDimList = []
+            self.pop_stack_table(global_vars.stackDimList)
             self.picturelabel.setPixmap(QtGui.QPixmap(cwd+"/Resources/pytol_logo.png"))
             self.btnDelStack.setEnabled(True)
             self.btnEditStack.setEnabled(True)
@@ -801,7 +827,7 @@ class MainWindow(QtGui.QMainWindow):
             self.rowData = []
             self.btnMoveToStack.setEnabled(False)
         else:
-            mb = QtGui.QMessageBox ("Table error","Please select a dimension to edit!",QtGui.QMessageBox.Warning,QtGui.QMessageBox.Ok,0,0)
+            mb = QtGui.QMessageBox ("Table error","Please select a dimension to copy!",QtGui.QMessageBox.Warning,QtGui.QMessageBox.Ok,0,0)
             mb.exec_()
         
     def cellClick(self, row):
@@ -838,20 +864,52 @@ class MainWindow(QtGui.QMainWindow):
         else:
             mb = QtGui.QMessageBox ("Table error","Please select a dimension to edit!",QtGui.QMessageBox.Warning,QtGui.QMessageBox.Ok,0,0)
             mb.exec_()
+            
+    def del_dim(self):
+        curpart = unicode(self.cmbPartList.currentText())
+        partid = find_sid(curpart, global_vars.partList)
+        dimlist = list(set(database.get_stack_dim_ids(global_vars.db_file)))
+        dimid = int(self.rowData[0])
+        message = "Dimension cannot be deleted because:\n"
+        count = 0
+        for j in range(len(dimlist)):
+            if dimid == dimlist[j][0]:
+                count += 1                        
+                for k in range(len(global_vars.stackList)):
+                    if dimlist[j][1] == int(global_vars.stackList[k][0]):
+                        message += "belongs the stack \"" + global_vars.stackList[k][1].decode('unicode-escape') + "\"\n"
+        if count == 0:
+            database.delete_dim(global_vars.db_file, dimid, partid)
+            database.get_dimensions(global_vars.db_file, partid)
+            self.pop_table(global_vars.dimList)
+            mb = QtGui.QMessageBox ("Message","Dimension deleted succesfully!",QtGui.QMessageBox.Warning,QtGui.QMessageBox.Ok,0,0)
+            mb.exec_()
+        else:
+            mb = QtGui.QMessageBox ("Warning",message,QtGui.QMessageBox.Warning,QtGui.QMessageBox.Ok,0,0)
+            mb.exec_()
+        self.tblDimList.clearSelection()
+        self.rowData = []
         
     def edit_part(self):
         global_vars.curPart =unicode(self.cmbPartList.currentText())
-        partid = find_sid(global_vars.curPart, global_vars.partList)
+        #partid = find_sid(global_vars.curPart, global_vars.partList)
         editCompDialog = EditCompDialog()
         editCompDialog.newComp.setText(global_vars.curPart)
         editCompDialog.setWindowTitle("Rename component")
         editCompDialog.labelNewComp.setText("Component name:")
         editCompDialog.checklabel.setText("e")
         editCompDialog.exec_()
-        self.pop_partlist(global_vars.partList, global_vars.partList[partid-1][1].decode('unicode-escape'))
+        global_vars.curPart = editCompDialog.newComp.text()
+        self.pop_partlist(global_vars.partList, global_vars.curPart)#.decode('unicode-escape'))
+        part_id = find_sid(global_vars.curPart, global_vars.partList)
+        global_vars.dimList = []
+        database.get_dimensions(global_vars.db_file, part_id)
         
     def copy_part(self):
         curpart =unicode(self.cmbPartList.currentText())
+        part_id = find_sid(curpart, global_vars.partList)
+        global_vars.dimList = []
+        database.get_dimensions(global_vars.db_file, part_id)
         copyCompDialog = EditCompDialog()
         copyCompDialog.newComp.setText("Copy of " + curpart)
         copyCompDialog.setWindowTitle("Copy component")
@@ -859,12 +917,62 @@ class MainWindow(QtGui.QMainWindow):
         copyCompDialog.checklabel.setText("c")
         copyCompDialog.exec_()
         global_vars.curPart = copyCompDialog.newComp.text()
-        partid = find_sid(global_vars.curPart, global_vars.partList)
-        if partid is not None:
-            self.pop_partlist(global_vars.partList, global_vars.partList[partid-1][1].decode('unicode-escape'))
+        self.pop_partlist(global_vars.partList, global_vars.curPart)#.decode('unicode-escape'))
+        self.pop_table(global_vars.dimList)
+        self.tblDimList.clearSelection()
+        self.rowData = []
+            
+    def del_part(self):
+        curpart = unicode(self.cmbPartList.currentText())
+        index = self.cmbPartList.findText(curpart, QtCore.Qt.MatchFixedString)
+        if index >= 1:
+            partbefore = unicode(self.cmbPartList.itemText(index-1))
+        else:
+            partbefore = unicode(self.cmbPartList.itemText(index+1))
+        partid = find_sid(curpart, global_vars.partList)
+        if global_vars.dimList == []:
+            database.delete_part(global_vars.db_file, partid)
+            self.pop_partlist(global_vars.partList, partbefore)
+            curpart = unicode(self.cmbPartList.currentText())
+            partid = find_sid(curpart, global_vars.partList)
+            database.get_dimensions(global_vars.db_file, partid)
             self.pop_table(global_vars.dimList)
             self.tblDimList.clearSelection()
             self.rowData = []
+        else:
+            dimlist = list(set(database.get_stack_dim_ids(global_vars.db_file)))
+            rowcount = self.tblDimList.rowCount()
+            message = "Following dimension(s) cannot be deleted:\n"
+            for i in range(rowcount):
+                count = 0
+                dimid = int(self.tblDimList.item(i, 0).text())
+                for j in range(len(dimlist)):
+                    if dimid == dimlist[j][0]:
+                        count += 1                        
+                        for k in range(len(global_vars.stackList)):
+                            if dimlist[j][1] == int(global_vars.stackList[k][0]):
+                                message += "dimension nr "+str(i+1)+ " belongs the stack \"" + global_vars.stackList[k][1].decode('unicode-escape') + "\"\n"
+                if count == 0:
+                    database.delete_dim(global_vars.db_file, dimid, partid)
+            if len(message) <> 42:
+                mb = QtGui.QMessageBox ("Warning",message,QtGui.QMessageBox.Warning,QtGui.QMessageBox.Ok,0,0)
+                mb.exec_()
+                database.get_dimensions(global_vars.db_file, partid)
+                self.pop_table(global_vars.dimList)
+                self.tblDimList.clearSelection()
+                self.rowData = []
+            else:
+                database.delete_part(global_vars.db_file, partid)
+                self.pop_partlist(global_vars.partList, partbefore)
+                curpart = unicode(self.cmbPartList.currentText())
+                partid = find_sid(curpart, global_vars.partList)
+                database.get_dimensions(global_vars.db_file, partid)
+                self.pop_table(global_vars.dimList)
+                self.tblDimList.clearSelection()
+                self.rowData = []
+                mb = QtGui.QMessageBox ("Message","Component deleted succesfully!",QtGui.QMessageBox.Warning,QtGui.QMessageBox.Ok,0,0)
+                mb.exec_() 
+                
         
     def ren_stack(self):
         global_vars.curStack =unicode(self.cmbStackList.currentText())
@@ -1277,9 +1385,11 @@ class MainWindow(QtGui.QMainWindow):
         self.btnNewComp.setEnabled(False)
         self.btnEditComp.setEnabled(False)
         self.btnCopyComp.setEnabled(False)
+        self.btnDelComp.setEnabled(False)
         self.btnNewDim.setEnabled(False)
         self.btnEditDim.setEnabled(False)
         self.btnCopyDim.setEnabled(False)
+        self.btnDelDim.setEnabled(False)
         self.btnNewStack.setEnabled(False)
         self.btnEditStack.setEnabled(False)
         self.btnRenameStack.setEnabled(False)
@@ -1714,8 +1824,9 @@ class insertRemark(QtGui.QDialog):
         self.setWindowModality(QtCore.Qt.ApplicationModal)
         windowGm = self.frameGeometry()
         parentGm = GUI.frameGeometry()
-        x_coord = (parentGm.width() - windowGm.width())/2
-        y_coord = (parentGm.height() - windowGm.height())/2
+        winpos = GUI.pos()
+        x_coord = winpos.x() + (parentGm.width() - windowGm.width())/2
+        y_coord = winpos.y() + (parentGm.height() - windowGm.height())/2
         self.move(x_coord, y_coord)
         self.dialogBtn = QtGui.QDialogButtonBox(self)
         self.dialogBtn.setStandardButtons(QtGui.QDialogButtonBox.Ok|QtGui.QDialogButtonBox.Cancel)
